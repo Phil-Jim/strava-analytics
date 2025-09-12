@@ -6,6 +6,7 @@ services:
     repo: Phil-Jim/strava-analytics
     branch: main
   build_command: python manage.py collectstatic --noinput
+  run_command: python -m gunicorn --worker-tmp-dir /dev/shm --bind 0.0.0.0:8080 strava_analytics.wsgi
   environment_slug: python
   buildpack: python
   instance_count: 1
