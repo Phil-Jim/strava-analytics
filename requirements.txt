@@ -1,5 +1,5 @@
 Django==5.2.6
-django-allauth==65.0.2
+django-allauth==0.63.3
 python-dotenv==1.0.0
 requests==2.31.0
 gunicorn==21.2.0
