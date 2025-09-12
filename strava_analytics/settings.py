@@ -188,12 +188,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Allauth settings - modern configuration
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # Skip email verification for demo
-ACCOUNT_LOGIN_METHODS = ['email']  # Use email login only
-ACCOUNT_SIGNUP_FIELDS = ['email']  # Only require email for signup
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
-ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
+# Allauth settings - minimal configuration for deployment
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_USERNAME_REQUIRED = False
 
 # Social account settings
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
