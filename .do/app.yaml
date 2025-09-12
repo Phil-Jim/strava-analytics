@@ -7,7 +7,6 @@ services:
     branch: main
   run_command: |
     python manage.py migrate
-    python manage.py collectstatic --noinput
     gunicorn strava_analytics.wsgi:application --bind 0.0.0.0:$PORT
   environment_slug: python
   instance_count: 1
