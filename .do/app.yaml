@@ -1,0 +1,38 @@
+name: strava-analytics
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: YOUR_USERNAME/strava-analytics
+    branch: main
+  run_command: |
+    python manage.py migrate
+    python manage.py collectstatic --noinput
+    gunicorn strava_analytics.wsgi:application --bind 0.0.0.0:$PORT
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  envs:
+  - key: DEBUG
+    value: "False"
+  - key: DJANGO_SECRET_KEY
+    value: "django-production-secret-key-change-this-to-something-very-long-and-random-12345"
+  - key: ALLOWED_HOSTS
+    value: ".ondigitalocean.app,localhost,127.0.0.1"
+  - key: STRAVA_CLIENT_ID
+    value: "176560"
+  - key: STRAVA_CLIENT_SECRET
+    value: "5dedff302150ac96088259de5e2f28fb37c9e16d"
+  - key: STRAVA_ACCESS_TOKEN
+    value: "cc5a6c0eca66a8392c4f69d85a040c59c44e162e"
+  - key: STRAVA_REFRESH_TOKEN
+    value: "b6d677327d7f25eca8f142c0967e3d6abbc74fe7"
+  - key: FACEBOOK_CLIENT_ID
+    value: "1529630181550200"
+  - key: FACEBOOK_CLIENT_SECRET
+    value: "93a7949d5cf01c1cd97da274499881bb"
+  - key: GOOGLE_CLIENT_ID
+    value: "your-google-client-id-here"
+  - key: GOOGLE_CLIENT_SECRET
+    value: "your-google-client-secret-here"

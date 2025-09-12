@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strava Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FFD23F 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header-content {
+            text-align: center;
+        }
+
+        .user-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e55a2b;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .filters {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, button:hover {
+            border-color: #FF6B35;
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+
+        button {
+            background: #FF6B35;
+            color: white;
+            border-color: #FF6B35;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #E55A30;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .activities-table {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #FF6B35;
+            color: white;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .activity-type {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .activity-run { background: #ff6b35; color: white; }
+        .activity-ride { background: #4CAF50; color: white; }
+        .activity-ebikeride { background: #8BC34A; color: white; }
+        .activity-swim { background: #2196F3; color: white; }
+        .activity-walk { background: #FF9800; color: white; }
+        .activity-other { background: #9E9E9E; color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+
+        .tab-container {
+            margin-top: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 30px;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 107, 53, 0.8);
+            border-color: #FF6B35;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .tab-btn.active {
+            background: #FF6B35;
+            border-color: #E55A30;
+            color: white;
+            box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .activities-filters {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .activities-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FF6B35;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            background: #fff;
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            background: #FF6B35;
+            color: white;
+            border-color: #FF6B35;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            color: #666;
+            font-weight: 600;
+            margin: 0 15px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tab-buttons {
+                justify-content: center;
+                flex-direction: row;
+                gap: 3px;
+                padding: 3px;
+            }
+
+            .tab-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-nav">
+                <span class="user-info">Welcome, {{ user.username }}!</span>
+                <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+            </div>
+            <div class="header-content">
+                <div class="logo">🏃‍♂️ Strava Analytics Dashboard</div>
+                <div class="subtitle">Track your fitness journey with detailed insights</div>
+            </div>
+        </header>
+
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('activities')">Activities</button>
+            </div>
+
+            <div id="dashboardTab" class="tab-content active">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label for="periodFilter">Time Period:</label>
+                        <select id="periodFilter">
+                            <option value="all">All Time</option>
+                            <option value="year">Last Year</option>
+                            <option value="month">Last Month</option>
+                            <option value="week">Last Week</option>
+                        </select>
+
+                        <label for="typeFilter">Activity Type:</label>
+                        <select id="typeFilter">
+                            <option value="">All Activities</option>
+                            <option value="Run">Running</option>
+                            <option value="Ride">Cycling</option>
+                            <option value="EBikeRide">E-Bike Ride</option>
+                            <option value="Swim">Swimming</option>
+                            <option value="Walk">Walking</option>
+                            <option value="Workout">Workout</option>
+                        </select>
+
+                        <button onclick="updateDashboard()">Update Dashboard</button>
+                        <button onclick="exportData()">Export Data</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalActivities">{{ stats.total_activities|default:0 }}</div>
+                <div class="stat-label">Total Activities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDistance">{{ stats.total_distance_miles|floatformat:1|default:0 }}</div>
+                <div class="stat-label">Total Distance (miles)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalTime">{{ stats.total_time_hours|floatformat:1|default:0 }}</div>
+                <div class="stat-label">Total Time (hours)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgSpeed">{{ stats.avg_speed_mph|floatformat:1|default:0 }}</div>
+                <div class="stat-label">Avg Speed (mph)</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <div class="chart-title">Activity Type Distribution</div>
+                <div class="chart-wrapper">
+                    <canvas id="activityTypeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Monthly Trends</div>
+                <div class="chart-wrapper">
+                    <canvas id="monthlyTrendsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Weekly Activity</div>
+                <div class="chart-wrapper">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Day of Week Analysis</div>
+                <div class="chart-wrapper">
+                    <canvas id="dayOfWeekChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Monthly Average Speed</div>
+                <div class="chart-wrapper">
+                    <canvas id="monthlySpeedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="activitiesTab" class="tab-content">
+                <div class="activities-filters">
+                    <div class="filter-row">
+                        <label for="yearFilter">Year:</label>
+                        <select id="yearFilter">
+                            <option value="">All Years</option>
+                        </select>
+
+                        <label for="monthFilter">Month:</label>
+                        <select id="monthFilter">
+                            <option value="">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+
+                        <label for="activityTypeFilter">Type:</label>
+                        <select id="activityTypeFilter">
+                            <option value="">All Types</option>
+                            <option value="Run">Running</option>
+                            <option value="Ride">Cycling</option>
+                            <option value="EBikeRide">E-Bike Ride</option>
+                            <option value="Swim">Swimming</option>
+                            <option value="Walk">Walking</option>
+                            <option value="Workout">Workout</option>
+                        </select>
+
+                        <button onclick="filterActivities()">Filter Activities</button>
+                    </div>
+                </div>
+
+                <div class="activities-summary" id="activitiesSummary">
+                    <!-- Summary stats will be populated here -->
+                </div>
+
+                <div class="activities-table">
+                    <div class="table-header">
+                        Activities <span id="activityCount"></span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Activity</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Distance</th>
+                                <th>Time</th>
+                                <th>Avg Speed</th>
+                                <th>Elevation</th>
+                                <th>Calories</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activitiesTableBody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px; color: #666;">
+                                    Loading activities...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination" id="pagination">
+                    <!-- Pagination controls will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            updateDashboard();
+        });
+
+        function updateDashboard() {
+            const period = document.getElementById('periodFilter').value;
+            const activityType = document.getElementById('typeFilter').value;
+            
+            // Update stats
+            updateStats(period, activityType);
+            
+            // Update charts
+            updateCharts(period, activityType);
+        }
+
+        async function updateStats(period, activityType) {
+            try {
+                const params = new URLSearchParams({period});
+                if (activityType) params.append('type', activityType);
+                
+                const response = await fetch(`/api/stats/?${params}`);
+                const stats = await response.json();
+                
+                document.getElementById('totalActivities').textContent = stats.total_activities || 0;
+                document.getElementById('totalDistance').textContent = (stats.total_distance_miles || 0).toFixed(1);
+                document.getElementById('totalTime').textContent = (stats.total_time_hours || 0).toFixed(1);
+                document.getElementById('avgSpeed').textContent = (stats.avg_speed_mph || 0).toFixed(1);
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        async function updateCharts(period, activityType) {
+            try {
+                // Update activity type chart
+                const breakdownParams = new URLSearchParams({period});
+                const breakdownResponse = await fetch(`/api/breakdown/?${breakdownParams}`);
+                const breakdownData = await breakdownResponse.json();
+                updateActivityTypeChart(breakdownData.breakdown);
+                
+                // Update monthly trends
+                const trendsParams = new URLSearchParams();
+                if (activityType) trendsParams.append('type', activityType);
+                const trendsResponse = await fetch(`/api/monthly-trends/?${trendsParams}`);
+                const trendsData = await trendsResponse.json();
+                updateMonthlyTrendsChart(trendsData.trends);
+                
+                // Update weekly chart
+                const weeklyResponse = await fetch(`/api/weekly-trends/?${trendsParams}`);
+                const weeklyData = await weeklyResponse.json();
+                updateWeeklyChart(weeklyData.trends);
+                
+                // Update day of week chart
+                const dayParams = new URLSearchParams();
+                if (activityType) dayParams.append('type', activityType);
+                const dayResponse = await fetch(`/api/day-of-week/?${dayParams}`);
+                const dayData = await dayResponse.json();
+                updateDayOfWeekChart(dayData.stats);
+                
+                // Update monthly speed chart (reuse trends data)
+                updateMonthlySpeedChart(trendsData.trends);
+                
+            } catch (error) {
+                console.error('Error updating charts:', error);
+            }
+        }
+
+        // Tab management
+        let currentPage = 1;
+        const activitiesPerPage = 50;
+        
+        function switchTab(tabName) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabName + 'Tab');
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Load activities if switching to activities tab
+            if (tabName === 'activities') {
+                setTimeout(() => {
+                    loadActivitiesTab();
+                }, 100);
+            }
+        }
+        
+        async function loadActivitiesTab() {
+            // Populate year filter
+            await populateYearFilter();
+            
+            // Load initial activities
+            await filterActivities();
+        }
+        
+        async function populateYearFilter() {
+            try {
+                const response = await fetch('/api/activities/?limit=1000');
+                const data = await response.json();
+                
+                const years = [...new Set(data.activities.map(activity => 
+                    new Date(activity.date).getFullYear()
+                ))].sort((a, b) => b - a);
+                
+                const yearFilter = document.getElementById('yearFilter');
+                yearFilter.innerHTML = '<option value="">All Years</option>';
+                
+                years.forEach(year => {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearFilter.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error populating year filter:', error);
+            }
+        }
+        
+        async function filterActivities(page = 1) {
+            currentPage = page;
+            
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            const activityType = document.getElementById('activityTypeFilter').value;
+            
+            try {
+                const params = new URLSearchParams({
+                    limit: 1000, // Get all for client-side pagination
+                });
+                if (activityType) params.append('type', activityType);
+                
+                const response = await fetch(`/api/activities/?${params}`);
+                const data = await response.json();
+                
+                // Filter by year and month on client side
+                let filteredActivities = data.activities;
+                
+                if (year) {
+                    filteredActivities = filteredActivities.filter(activity => 
+                        new Date(activity.date).getFullYear().toString() === year
+                    );
+                }
+                
+                if (month) {
+                    filteredActivities = filteredActivities.filter(activity => 
+                        (new Date(activity.date).getMonth() + 1).toString() === month
+                    );
+                }
+                
+                // Update summary
+                updateActivitiesSummary(filteredActivities);
+                
+                // Paginate
+                const startIndex = (page - 1) * activitiesPerPage;
+                const endIndex = startIndex + activitiesPerPage;
+                const paginatedActivities = filteredActivities.slice(startIndex, endIndex);
+                
+                // Update table
+                updateActivitiesTable(paginatedActivities);
+                
+                // Update pagination
+                updatePagination(filteredActivities.length, page);
+                
+            } catch (error) {
+                console.error('Error filtering activities:', error);
+            }
+        }
+        
+        function updateActivitiesSummary(activities) {
+            const summary = document.getElementById('activitiesSummary');
+            
+            const totalActivities = activities.length;
+            const totalDistance = activities.reduce((sum, act) => sum + act.distance_miles, 0);
+            const totalTime = activities.reduce((sum, act) => {
+                // Parse time from HH:MM:SS format
+                const parts = act.moving_time.split(':');
+                return sum + (parseInt(parts[0]) + parseInt(parts[1])/60 + parseInt(parts[2])/3600);
+            }, 0);
+            const avgSpeed = activities.length > 0 ? 
+                activities.reduce((sum, act) => sum + act.average_speed_mph, 0) / activities.length : 0;
+            
+            summary.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-value">${totalActivities}</div>
+                    <div class="summary-label">Activities</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${totalDistance.toFixed(1)}</div>
+                    <div class="summary-label">Total Distance (miles)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${totalTime.toFixed(1)}</div>
+                    <div class="summary-label">Total Time (hours)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${avgSpeed.toFixed(1)}</div>
+                    <div class="summary-label">Avg Speed (mph)</div>
+                </div>
+            `;
+        }
+        
+        function updateActivitiesTable(activities) {
+            const tbody = document.getElementById('activitiesTableBody');
+            const activityCount = document.getElementById('activityCount');
+            
+            tbody.innerHTML = '';
+            
+            if (activities.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 30px; color: #666;">No activities found.</td></tr>';
+                activityCount.textContent = '';
+                return;
+            }
+            
+            activityCount.textContent = `(${activities.length} shown)`;
+            
+            activities.forEach(activity => {
+                const row = document.createElement('tr');
+                const activityDate = new Date(activity.date).toLocaleDateString();
+                const typeClass = `activity-${activity.type.toLowerCase()}`;
+                
+                row.innerHTML = `
+                    <td>${activity.name}</td>
+                    <td><span class="activity-type ${typeClass}">${activity.type}</span></td>
+                    <td>${activityDate}</td>
+                    <td>${activity.distance_miles.toFixed(2)} mi</td>
+                    <td>${activity.moving_time}</td>
+                    <td>${activity.average_speed_mph.toFixed(1)} mph</td>
+                    <td>${activity.elevation_gain || 0}m</td>
+                    <td>${activity.calories || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function updatePagination(totalActivities, currentPage) {
+            const totalPages = Math.ceil(totalActivities / activitiesPerPage);
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <button class="page-btn" onclick="filterActivities(${currentPage - 1})" 
+                        ${currentPage === 1 ? 'disabled' : ''}>
+                    ← Previous
+                </button>
+            `;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="filterActivities(1)">1</button>`;
+                if (startPage > 2) paginationHTML += `<span>...</span>`;
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" 
+                            onclick="filterActivities(${i})">${i}</button>
+                `;
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) paginationHTML += `<span>...</span>`;
+                paginationHTML += `<button class="page-btn" onclick="filterActivities(${totalPages})">${totalPages}</button>`;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <button class="page-btn" onclick="filterActivities(${currentPage + 1})" 
+                        ${currentPage === totalPages ? 'disabled' : ''}>
+                    Next →
+                </button>
+            `;
+            
+            // Page info
+            paginationHTML += `
+                <div class="page-info">
+                    Page ${currentPage} of ${totalPages} (${totalActivities} activities)
+                </div>
+            `;
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        function initializeCharts() {
+            // Activity Type Chart
+            const typeCtx = document.getElementById('activityTypeChart').getContext('2d');
+            charts.activityType = new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: ['#FF6B35', '#4CAF50', '#2196F3', '#FF9800', '#9E9E9E', '#E91E63']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Monthly Trends Chart
+            const monthlyCtx = document.getElementById('monthlyTrendsChart').getContext('2d');
+            charts.monthlyTrends = new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Distance (miles)',
+                        data: [],
+                        borderColor: '#FF6B35',
+                        backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Weekly Chart
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+            charts.weekly = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Activities',
+                        data: [],
+                        backgroundColor: '#FF6B35'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Day of Week Chart
+            const dayCtx = document.getElementById('dayOfWeekChart').getContext('2d');
+            charts.dayOfWeek = new Chart(dayCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                    datasets: [{
+                        label: 'Average Activities',
+                        data: [],
+                        borderColor: '#FF6B35',
+                        backgroundColor: 'rgba(255, 107, 53, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Monthly Speed Chart
+            const monthlySpeedCtx = document.getElementById('monthlySpeedChart').getContext('2d');
+            charts.monthlySpeed = new Chart(monthlySpeedCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Average Speed (mph)',
+                        data: [],
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Speed (mph)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateActivityTypeChart(data) {
+            charts.activityType.data.labels = data.map(item => item.activity_type);
+            charts.activityType.data.datasets[0].data = data.map(item => item.count);
+            charts.activityType.update();
+        }
+
+        function updateMonthlyTrendsChart(data) {
+            charts.monthlyTrends.data.labels = data.map(item => item.month);
+            charts.monthlyTrends.data.datasets[0].data = data.map(item => item.distance_miles);
+            charts.monthlyTrends.update();
+        }
+
+        function updateWeeklyChart(data) {
+            charts.weekly.data.labels = data.map(item => item.week);
+            charts.weekly.data.datasets[0].data = data.map(item => item.activities);
+            charts.weekly.update();
+        }
+
+        function updateDayOfWeekChart(data) {
+            const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayData = dayOrder.map(day => {
+                const dayStats = data.find(item => item.day === day);
+                return dayStats ? dayStats.avg_activities : 0;
+            });
+            
+            charts.dayOfWeek.data.datasets[0].data = dayData;
+            charts.dayOfWeek.update();
+        }
+
+        function updateMonthlySpeedChart(data) {
+            charts.monthlySpeed.data.labels = data.map(item => item.month);
+            charts.monthlySpeed.data.datasets[0].data = data.map(item => item.avg_speed_mph || 0);
+            charts.monthlySpeed.update();
+        }
+
+        function exportData() {
+            const period = document.getElementById('periodFilter').value;
+            const activityType = document.getElementById('typeFilter').value;
+            
+            const params = new URLSearchParams({limit: 1000});
+            if (activityType) params.append('type', activityType);
+            
+            // This would typically trigger a CSV download
+            alert('Export functionality would download a CSV file with your activity data');
+        }
+    </script>
+</body>
+</html>
