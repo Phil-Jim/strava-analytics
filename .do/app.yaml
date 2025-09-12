@@ -7,6 +7,7 @@ services:
     branch: main
   run_command: |
     python manage.py migrate
+    python manage.py collectstatic --noinput
     gunicorn strava_analytics.wsgi:application --bind 0.0.0.0:$PORT
   environment_slug: python
   instance_count: 1
@@ -19,6 +20,10 @@ services:
     value: "django-production-secret-key-change-this-to-something-very-long-and-random-12345"
   - key: ALLOWED_HOSTS
     value: ".ondigitalocean.app,localhost,127.0.0.1"
+  - key: DISABLE_COLLECTSTATIC
+    value: "1"
+  - key: PYTHONDONTWRITEBYTECODE
+    value: "1"
   - key: STRAVA_CLIENT_ID
     value: "176560"
   - key: STRAVA_CLIENT_SECRET
