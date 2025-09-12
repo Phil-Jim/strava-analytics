@@ -1,1 +1,1 @@
-web: gunicorn strava_analytics.wsgi:application --worker-tmp-dir /dev/shm --bind 0.0.0.0:$PORT
+web: python -m gunicorn strava_analytics.wsgi:application --worker-tmp-dir /dev/shm --bind 0.0.0.0:$PORT
