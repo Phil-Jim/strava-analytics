@@ -5,8 +5,9 @@ services:
   github:
     repo: Phil-Jim/strava-analytics
     branch: main
-  run_command: gunicorn --bind 0.0.0.0:8080 --worker-tmp-dir /dev/shm strava_analytics.wsgi:application
+  run_command: gunicorn --worker-tmp-dir /dev/shm --bind 0.0.0.0:8080 strava_analytics.wsgi:application
   environment_slug: python
+  buildpack: python
   instance_count: 1
   instance_size_slug: basic-xxs
   http_port: 8080
