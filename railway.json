@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn strava_analytics.wsgi:application --bind 0.0.0.0:$PORT"
+    "startCommand": "python manage.py migrate && python manage.py collectstatic --noinput && python test_wsgi.py && gunicorn strava_analytics.wsgi:application --bind 0.0.0.0:${PORT:-8080} --workers 1 --log-level debug --access-logfile - --error-logfile - --timeout 30"
   }
 }
