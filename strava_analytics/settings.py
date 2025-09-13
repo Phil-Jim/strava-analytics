@@ -242,6 +242,10 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 # Custom adapters for automatic Strava connection
 SOCIALACCOUNT_ADAPTER = 'activities.adapters.StravaConnectSocialAdapter'
 
+# Force HTTPS for allauth redirect URIs on Railway
+# Since DEBUG=True is set globally, also set HTTPS globally for Railway
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
+
 # Redirect URLs
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
