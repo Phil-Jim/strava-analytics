@@ -13,24 +13,24 @@ def health_check(request):
     return HttpResponse("OK - Django is working", content_type="text/plain")
 
 
-# @login_required(login_url='/accounts/login/')  # Temporarily disabled for debugging
+@login_required(login_url='/accounts/login/')
 def dashboard(request):
     """Main dashboard view"""
     try:
-        # For debugging, return simple response instead of complex logic
-        return HttpResponse("Dashboard view is working - authentication and analytics temporarily disabled for debugging", content_type="text/plain")
+        analytics = StravaAnalytics(user=request.user)
         
-        # TODO: Re-enable this once basic routing works
-        # analytics = StravaAnalytics(user=request.user)
-        # stats = analytics.get_summary_stats()
-        # activity_breakdown = analytics.get_activity_type_breakdown()
-        # personal_records = analytics.get_personal_records()
-        # context = {
-        #     'stats': stats,
-        #     'activity_breakdown': activity_breakdown,
-        #     'personal_records': personal_records,
-        # }
-        # return render(request, 'activities/dashboard.html', context)
+        # Get basic stats
+        stats = analytics.get_summary_stats()
+        activity_breakdown = analytics.get_activity_type_breakdown()
+        personal_records = analytics.get_personal_records()
+        
+        context = {
+            'stats': stats,
+            'activity_breakdown': activity_breakdown,
+            'personal_records': personal_records,
+        }
+        
+        return render(request, 'activities/dashboard.html', context)
     
     except Exception as e:
         # For debugging, return simple response with error info

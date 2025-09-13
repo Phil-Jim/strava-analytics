@@ -89,13 +89,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     
-    # Allauth - Temporarily disabled for debugging
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
-    # 'allauth.socialaccount.providers.facebook',
-    # 'allauth.socialaccount.providers.apple',
+    # Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.apple',
     
     # Local apps
     'activities',
@@ -109,8 +109,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'allauth.account.middleware.AccountMiddleware',  # Temporarily disabled for debugging
-    # 'activities.middleware.StravaRedirectMiddleware',  # Temporarily disabled
+    'allauth.account.middleware.AccountMiddleware',
+    # 'activities.middleware.StravaRedirectMiddleware',  # Keep disabled for now
 ]
 
 ROOT_URLCONF = 'strava_analytics.urls'

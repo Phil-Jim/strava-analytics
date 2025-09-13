@@ -18,6 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    # path('accounts/', include('allauth.urls')),  # Temporarily disabled for debugging
+    path('accounts/', include('allauth.urls')),
     path('', include('activities.urls')),
 ]
