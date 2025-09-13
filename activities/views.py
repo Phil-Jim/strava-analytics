@@ -21,9 +21,11 @@ def debug_env(request):
         from django.conf import settings
         debug_val = settings.DEBUG
         providers_count = len(settings.SOCIALACCOUNT_PROVIDERS)
+        secure_proxy_ssl = getattr(settings, 'SECURE_PROXY_SSL_HEADER', 'Not set')
     except Exception as e:
         debug_val = f"Error: {e}"
         providers_count = f"Error: {e}"
+        secure_proxy_ssl = f"Error: {e}"
     
     env_vars = {
         'FACEBOOK_CLIENT_ID': os.getenv('FACEBOOK_CLIENT_ID', 'Not set'),
@@ -32,6 +34,11 @@ def debug_env(request):
         'STRAVA_CLIENT_SECRET': 'Set' if os.getenv('STRAVA_CLIENT_SECRET') else 'Not set',
         'DEBUG': debug_val,
         'SOCIALACCOUNT_PROVIDERS_COUNT': providers_count,
+        'SECURE_PROXY_SSL_HEADER': secure_proxy_ssl,
+        'REQUEST_SCHEME': request.scheme,
+        'IS_SECURE': request.is_secure(),
+        'HTTP_X_FORWARDED_PROTO': request.META.get('HTTP_X_FORWARDED_PROTO', 'Not set'),
+        'HTTP_X_FORWARDED_FOR': request.META.get('HTTP_X_FORWARDED_FOR', 'Not set'),
     }
     
     html = "<h2>Environment Check</h2><ul>"
