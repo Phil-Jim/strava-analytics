@@ -10,7 +10,7 @@ from .analytics import StravaAnalytics
 
 def health_check(request):
     """Simple health check view for debugging"""
-    return HttpResponse("OK - Django is working", content_type="text/plain")
+    return HttpResponse("OK - Django is working (v2)", content_type="text/plain")
 
 
 @login_required(login_url='/accounts/login/')
