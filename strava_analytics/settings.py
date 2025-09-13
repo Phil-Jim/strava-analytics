@@ -120,7 +120,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
-    # 'activities.middleware.StravaRedirectMiddleware',  # Keep disabled for now
+    'activities.middleware.StravaRedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'strava_analytics.urls'
