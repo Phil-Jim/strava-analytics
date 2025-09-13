@@ -10,6 +10,9 @@ urlpatterns = [
     path('auth/strava/callback/', auth_views.strava_callback, name='strava_callback'),
     path('sync/', auth_views.sync_activities_view, name='sync_activities'),
     
+    # Health check
+    path('health/', views.health_check, name='health_check'),
+    
     # Dashboard
     path('', views.dashboard, name='dashboard'),
     

@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 from .models import Activity
 from .analytics import StravaAnalytics
+
+
+def health_check(request):
+    """Simple health check view for debugging"""
+    return HttpResponse("OK - Django is working", content_type="text/plain")
 
 
 @login_required(login_url='/accounts/login/')
