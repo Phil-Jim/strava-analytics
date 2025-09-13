@@ -27,15 +27,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ux^p(+vxwi8a+=+xe9b-=wvxudg+0yaz6^$5jkjoh94o*mud^s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+# Railway sets RAILWAY_ENVIRONMENT, so use that to detect production
+if os.getenv('RAILWAY_ENVIRONMENT'):
+    DEBUG = False
+else:
+    DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 # Production settings
 if not DEBUG:
     # Use environment variable for secret key in production
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', SECRET_KEY)
     
-    # Allow Railway and other deployment platforms
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.railway.app,.ondigitalocean.app,healthcheck.railway.app,localhost,127.0.0.1').split(',')
+    # Allow Railway and other deployment platforms  
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.railway.app,.ondigitalocean.app,healthcheck.railway.app,*.railway.app,localhost,127.0.0.1').split(',')
     
     # HTTPS and Security (Railway provides SSL automatically)
     SECURE_BROWSER_XSS_FILTER = True
