@@ -55,6 +55,10 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     
+    # Force HTTPS for OAuth callbacks behind Railway proxy
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_TLS = True
+    
     # CSRF trusted origins for Railway
     CSRF_TRUSTED_ORIGINS = [
         'https://*.railway.app',
@@ -67,6 +71,11 @@ else:
     SECURE_CONTENT_TYPE_NOSNIFF = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+    
+    # For Railway deployment with DEBUG=True, still need HTTPS detection
+    if os.getenv('RAILWAY_ENVIRONMENT'):
+        SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+        USE_TLS = True
 
 # CSRF trusted origins for development (only used when not in production)
 if DEBUG:
