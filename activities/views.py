@@ -16,20 +16,25 @@ def health_check(request):
 @login_required(login_url='/accounts/login/')
 def dashboard(request):
     """Main dashboard view"""
-    analytics = StravaAnalytics(user=request.user)
+    try:
+        analytics = StravaAnalytics(user=request.user)
+        
+        # Get basic stats
+        stats = analytics.get_summary_stats()
+        activity_breakdown = analytics.get_activity_type_breakdown()
+        personal_records = analytics.get_personal_records()
+        
+        context = {
+            'stats': stats,
+            'activity_breakdown': activity_breakdown,
+            'personal_records': personal_records,
+        }
+        
+        return render(request, 'activities/dashboard.html', context)
     
-    # Get basic stats
-    stats = analytics.get_summary_stats()
-    activity_breakdown = analytics.get_activity_type_breakdown()
-    personal_records = analytics.get_personal_records()
-    
-    context = {
-        'stats': stats,
-        'activity_breakdown': activity_breakdown,
-        'personal_records': personal_records,
-    }
-    
-    return render(request, 'activities/dashboard.html', context)
+    except Exception as e:
+        # For debugging, return simple response with error info
+        return HttpResponse(f"Dashboard Error: {str(e)}", status=500)
 
 
 @require_http_methods(["GET"])
