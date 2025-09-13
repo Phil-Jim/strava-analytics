@@ -89,13 +89,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     
-    # Allauth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.apple',
+    # Allauth - Temporarily disabled for debugging
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.facebook',
+    # 'allauth.socialaccount.providers.apple',
     
     # Local apps
     'activities',
