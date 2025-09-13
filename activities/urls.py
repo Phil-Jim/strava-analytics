@@ -21,4 +21,8 @@ urlpatterns = [
     path('api/personal-records/', views.api_personal_records, name='api_personal_records'),
     path('api/day-of-week/', views.api_day_of_week_stats, name='api_day_of_week'),
     path('api/activities/', views.api_activities, name='api_activities'),
+    
+    # Legal pages
+    path('privacy/', views.privacy_policy, name='privacy_policy'),
+    path('data-deletion/', views.data_deletion, name='data_deletion'),
 ]

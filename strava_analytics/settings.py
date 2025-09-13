@@ -34,18 +34,37 @@ if not DEBUG:
     # Use environment variable for secret key in production
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', SECRET_KEY)
     
-    # Allow DigitalOcean App Platform domains
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.ondigitalocean.app,localhost,127.0.0.1').split(',')
+    # Allow Railway and other deployment platforms
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.railway.app,.ondigitalocean.app,localhost,127.0.0.1').split(',')
     
-    # HTTPS and Security (DigitalOcean provides SSL automatically)
+    # HTTPS and Security (Railway provides SSL automatically)
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     
+    # CSRF trusted origins for Railway
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.railway.app',
+        'https://*.up.railway.app',
+    ]
+    
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '4a0387633f9b.ngrok-free.app']
+    # Disable SSL redirect for development with ngrok
+    SECURE_SSL_REDIRECT = False
+    SECURE_BROWSER_XSS_FILTER = False
+    SECURE_CONTENT_TYPE_NOSNIFF = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
+# CSRF trusted origins for development
+CSRF_TRUSTED_ORIGINS = [
+    'https://4a0387633f9b.ngrok-free.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 
 
 # Application definition

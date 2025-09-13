@@ -132,3 +132,13 @@ def api_activities(request):
         })
     
     return JsonResponse({'activities': activity_data})
+
+
+def privacy_policy(request):
+    """Privacy policy page for Facebook compliance"""
+    return render(request, 'activities/privacy_policy.html')
+
+
+def data_deletion(request):
+    """Data deletion instructions for Facebook compliance"""
+    return render(request, 'activities/data_deletion.html')
