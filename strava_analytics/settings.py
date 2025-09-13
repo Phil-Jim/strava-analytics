@@ -39,8 +39,17 @@ if not DEBUG:
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', SECRET_KEY)
     
     # Allow Railway and other deployment platforms  
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.railway.app,.ondigitalocean.app,healthcheck.railway.app,*.railway.app,localhost,127.0.0.1').split(',')
-    
+    default_hosts = '.railway.app,.ondigitalocean.app,healthcheck.railway.app,*.railway.app,localhost,127.0.0.1'
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default_hosts).split(',')
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '4a0387633f9b.ngrok-free.app']
+
+# Always add Railway healthcheck domain regardless of DEBUG mode
+if 'healthcheck.railway.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('healthcheck.railway.app')
+
+# Production-specific security settings
+if not DEBUG:
     # HTTPS and Security (Railway provides SSL automatically)
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -53,10 +62,8 @@ if not DEBUG:
         'https://*.railway.app',
         'https://*.up.railway.app',
     ]
-    
 else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '4a0387633f9b.ngrok-free.app']
-    # Disable SSL redirect for development with ngrok
+    # Development settings
     SECURE_SSL_REDIRECT = False
     SECURE_BROWSER_XSS_FILTER = False
     SECURE_CONTENT_TYPE_NOSNIFF = False
