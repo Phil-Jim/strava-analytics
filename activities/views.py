@@ -13,28 +13,53 @@ def health_check(request):
     return HttpResponse("OK - Django is working (v2)", content_type="text/plain")
 
 
-@login_required(login_url='/accounts/login/')
+def debug_env(request):
+    """Debug view to check environment variables"""
+    import os
+    from django.conf import settings
+    
+    env_vars = {
+        'FACEBOOK_CLIENT_ID': os.getenv('FACEBOOK_CLIENT_ID', 'Not set'),
+        'FACEBOOK_CLIENT_SECRET': 'Set' if os.getenv('FACEBOOK_CLIENT_SECRET') else 'Not set',
+        'STRAVA_CLIENT_ID': os.getenv('STRAVA_CLIENT_ID', 'Not set'),
+        'STRAVA_CLIENT_SECRET': 'Set' if os.getenv('STRAVA_CLIENT_SECRET') else 'Not set',
+        'DEBUG': settings.DEBUG,
+        'SOCIALACCOUNT_PROVIDERS_COUNT': len(settings.SOCIALACCOUNT_PROVIDERS),
+    }
+    
+    html = "<h2>Environment Check</h2><ul>"
+    for key, value in env_vars.items():
+        html += f"<li><strong>{key}:</strong> {value}</li>"
+    html += "</ul>"
+    
+    return HttpResponse(html)
+
+
 def dashboard(request):
-    """Main dashboard view"""
+    """Main dashboard view - temporarily remove login requirement for debugging"""
     try:
-        analytics = StravaAnalytics(user=request.user)
-        
-        # Get basic stats
-        stats = analytics.get_summary_stats()
-        activity_breakdown = analytics.get_activity_type_breakdown()
-        personal_records = analytics.get_personal_records()
-        
-        context = {
-            'stats': stats,
-            'activity_breakdown': activity_breakdown,
-            'personal_records': personal_records,
-        }
-        
-        return render(request, 'activities/dashboard.html', context)
+        if request.user.is_authenticated:
+            analytics = StravaAnalytics(user=request.user)
+            
+            # Get basic stats
+            stats = analytics.get_summary_stats()
+            activity_breakdown = analytics.get_activity_type_breakdown()
+            personal_records = analytics.get_personal_records()
+            
+            context = {
+                'stats': stats,
+                'activity_breakdown': activity_breakdown,
+                'personal_records': personal_records,
+            }
+            
+            return render(request, 'activities/dashboard.html', context)
+        else:
+            return HttpResponse("Please log in to view dashboard. <a href='/accounts/login/'>Login</a>")
     
     except Exception as e:
-        # For debugging, return simple response with error info
-        return HttpResponse(f"Dashboard Error: {str(e)}", status=500)
+        import traceback
+        # For debugging, return detailed error info
+        return HttpResponse(f"Dashboard Error: {str(e)}<br><br>Traceback:<br><pre>{traceback.format_exc()}</pre>", status=500)
 
 
 @require_http_methods(["GET"])

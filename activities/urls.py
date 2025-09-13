@@ -12,6 +12,7 @@ urlpatterns = [
     
     # Health check
     path('health/', views.health_check, name='health_check'),
+    path('debug/', views.debug_env, name='debug_env'),
     
     # Dashboard
     path('', views.dashboard, name='dashboard'),
