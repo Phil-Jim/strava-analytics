@@ -16,15 +16,22 @@ def health_check(request):
 def debug_env(request):
     """Debug view to check environment variables"""
     import os
-    from django.conf import settings
+    
+    try:
+        from django.conf import settings
+        debug_val = settings.DEBUG
+        providers_count = len(settings.SOCIALACCOUNT_PROVIDERS)
+    except Exception as e:
+        debug_val = f"Error: {e}"
+        providers_count = f"Error: {e}"
     
     env_vars = {
         'FACEBOOK_CLIENT_ID': os.getenv('FACEBOOK_CLIENT_ID', 'Not set'),
         'FACEBOOK_CLIENT_SECRET': 'Set' if os.getenv('FACEBOOK_CLIENT_SECRET') else 'Not set',
         'STRAVA_CLIENT_ID': os.getenv('STRAVA_CLIENT_ID', 'Not set'),
         'STRAVA_CLIENT_SECRET': 'Set' if os.getenv('STRAVA_CLIENT_SECRET') else 'Not set',
-        'DEBUG': settings.DEBUG,
-        'SOCIALACCOUNT_PROVIDERS_COUNT': len(settings.SOCIALACCOUNT_PROVIDERS),
+        'DEBUG': debug_val,
+        'SOCIALACCOUNT_PROVIDERS_COUNT': providers_count,
     }
     
     html = "<h2>Environment Check</h2><ul>"
