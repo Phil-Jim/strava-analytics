@@ -28,8 +28,10 @@ SECRET_KEY = 'django-insecure-ux^p(+vxwi8a+=+xe9b-=wvxudg+0yaz6^$5jkjoh94o*mud^s
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Railway sets RAILWAY_ENVIRONMENT, so use that to detect production
-# Temporarily enable DEBUG for troubleshooting 500 errors
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+if os.getenv('RAILWAY_ENVIRONMENT'):
+    DEBUG = False
+else:
+    DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 # Production settings
 if not DEBUG:
@@ -40,8 +42,7 @@ if not DEBUG:
     default_hosts = '.railway.app,.ondigitalocean.app,healthcheck.railway.app,*.railway.app,localhost,127.0.0.1'
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default_hosts).split(',')
 else:
-    # For debugging on Railway, allow Railway hosts even in DEBUG mode
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '4a0387633f9b.ngrok-free.app', 'web-production-72303.up.railway.app', '.railway.app', '*.railway.app']
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '4a0387633f9b.ngrok-free.app']
 
 # Always add Railway healthcheck domain regardless of DEBUG mode
 if 'healthcheck.railway.app' not in ALLOWED_HOSTS:
@@ -174,7 +175,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files disabled - using inline CSS in templates
+# Static files (required for allauth middleware even if not using static files)
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

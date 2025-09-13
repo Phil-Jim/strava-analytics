@@ -42,31 +42,28 @@ def debug_env(request):
     return HttpResponse(html)
 
 
+@login_required(login_url='/accounts/login/')
 def dashboard(request):
-    """Main dashboard view - temporarily remove login requirement for debugging"""
+    """Main dashboard view"""
     try:
-        if request.user.is_authenticated:
-            analytics = StravaAnalytics(user=request.user)
-            
-            # Get basic stats
-            stats = analytics.get_summary_stats()
-            activity_breakdown = analytics.get_activity_type_breakdown()
-            personal_records = analytics.get_personal_records()
-            
-            context = {
-                'stats': stats,
-                'activity_breakdown': activity_breakdown,
-                'personal_records': personal_records,
-            }
-            
-            return render(request, 'activities/dashboard.html', context)
-        else:
-            return HttpResponse("Please log in to view dashboard. <a href='/accounts/login/'>Login</a>")
+        analytics = StravaAnalytics(user=request.user)
+        
+        # Get basic stats
+        stats = analytics.get_summary_stats()
+        activity_breakdown = analytics.get_activity_type_breakdown()
+        personal_records = analytics.get_personal_records()
+        
+        context = {
+            'stats': stats,
+            'activity_breakdown': activity_breakdown,
+            'personal_records': personal_records,
+        }
+        
+        return render(request, 'activities/dashboard.html', context)
     
     except Exception as e:
-        import traceback
-        # For debugging, return detailed error info
-        return HttpResponse(f"Dashboard Error: {str(e)}<br><br>Traceback:<br><pre>{traceback.format_exc()}</pre>", status=500)
+        # For debugging, return simple response with error info
+        return HttpResponse(f"Dashboard Error: {str(e)}", status=500)
 
 
 @require_http_methods(["GET"])
