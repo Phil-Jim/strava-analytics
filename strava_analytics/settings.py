@@ -35,7 +35,7 @@ if not DEBUG:
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', SECRET_KEY)
     
     # Allow Railway and other deployment platforms
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.railway.app,.ondigitalocean.app,localhost,127.0.0.1').split(',')
+    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '.railway.app,.ondigitalocean.app,healthcheck.railway.app,localhost,127.0.0.1').split(',')
     
     # HTTPS and Security (Railway provides SSL automatically)
     SECURE_BROWSER_XSS_FILTER = True
